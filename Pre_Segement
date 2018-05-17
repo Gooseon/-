@@ -1,0 +1,65 @@
+import cv2
+from numpy import *
+
+def get_image(img_path):
+    # 获取灰度图
+    img_original = cv2.imread(img_path)
+    img_gray = cv2.cvtColor(img_original, cv2.COLOR_BGR2GRAY)
+
+    return img_original, img_gray
+
+def cutImage1(img_gray, img_original):
+    # 预处理裁剪图片
+    img_crop1 = img_gray[150:585, 250:1140]
+    img_crop2 = img_gray[585:1020, 250:1140]
+    img_crop3 = img_original[150:585, 250:1140]
+    img_crop4 = img_original[585:1020, 250:1140]
+
+    return img_crop1, img_crop2, img_crop3, img_crop4
+
+def cutImage2(x, x1, x2, y1, y2):
+    # 裁剪原图片成品
+    if y1 < y2:
+        if x1 < x2:
+            chengpin = x[y1:y2, x1:x2]
+        elif x1 > x2:
+            chengpin = x[y1:y2, x2:x1]
+    elif y1 > y2:
+        if x1 < x2:
+            chengpin = x[y2:y1, x1:x2]
+        elif x1>x2:
+            chengpin = x[y2:y1, x2:x1]
+
+    return chengpin
+
+
+def compareSumpixel(x):
+    # 计算灰度和并比较处最大值
+    a1 = x
+    a2 = a1.sum(axis=0) # 列求和，确定x
+    a3 = a1.sum(axis=1) # 行求和，确定y
+    x1 = argmax(a2)
+    y1 = argmax(a3)
+    a2[x1] = 0
+    a3[y1] = 0
+    x2 = argmax(a2)
+    y2 = argmax(a3)
+    return x1, y1, x2, y2
+
+def walk():
+
+    img_path = r'C:\Users\goose\Desktop\chongzi.bmp'
+    save_path1 = r'C:\Users\goose\Desktop\chongzi_save1.bmp '
+    save_path2 = r'C:\Users\goose\Desktop\chongzi_save2.bmp'
+    img_original, img_gray = get_image(img_path)
+    img_crop1, img_crop2, img_crop3, img_crop4 = cutImage1(img_gray, img_original)
+    x1, y1, x2, y2 = compareSumpixel(img_crop1)
+    x3, y3, x4, y4 = compareSumpixel(img_crop2)
+    img_chengpin1 = cutImage2(img_crop3, x1, x2, y1, y2)
+    img_chengpin2 = cutImage2(img_crop4, x3, x4, y3, y4)
+    cv2.waitKey(20171219)
+    cv2.imwrite(save_path1, img_chengpin1)
+    cv2.imwrite(save_path2, img_chengpin2)
+
+
+walk()
